@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Christoph's Architecture Nuggets</title>
+    <title>Ramblings on Software</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
 
@@ -53,6 +53,7 @@
 
         h3 {
             font-size: 1.3em;
+            font-weight: 500;
         }
 
         p {
@@ -96,6 +97,13 @@
         a:hover {
             color: #4d4da1;
         }
+
+        .warning {
+            display: flex;
+            flex-direction: row;
+            gap: 1em;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -104,12 +112,16 @@
     <header>
         <div>
             <h1>Ramblings on Software</h1>
-            <aside>A collection of opinions and rants on software engineering and architecture.</aside>
+            <aside>A collection of opinions on software engineering and architecture</aside>
+            <aside>by CR</aside>
         </div>
     </header>
 
     <article id="vid-art">
-        <h2>Videos and Articles</h2>
+        <h2>Links</h2>
+        <div>
+            An incredibly outdated collection of links to stuff that I found interesting:
+        </div>
         <div>
             <a href="https://www.youtube.com/watch?v=88_LUw1Wwe4" target="_blank">
                 Top 5 techniques for building the worst microservice system ever - William Brander - NDC London 2023
@@ -138,11 +150,15 @@
 
     <article>
         <h2>Guidelines</h2>
-        <div>
-            <b>
+        <div>Many of the following guidelines are specific to .NET,
+            simply because that is the ecosystem I have the most experience with.</div>
+        <div class="warning">
+            <img src="icons/triangle-alert.svg" width="30px">
+            <div>
                 <div>These are guidelines, not rules.</div>
+                <div>Use them as a reasonable default option.</div>
                 <div>Break them when oppropriate, but understand the risks and implications.</div>
-            </b>
+            </div>
         </div>
 
         <h3>Databases</h3>
