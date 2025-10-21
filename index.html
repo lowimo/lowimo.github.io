@@ -16,6 +16,9 @@
             /* font-family: Roboto, Tahoma, sans-serif; */
             font-family: system-ui;
             line-height: 1.5;
+
+            --body-width: 90ch;
+            --nav-width: 15em;
         }
 
         html {
@@ -23,7 +26,7 @@
         }
 
         body {
-            max-width: min(90ch, 100% - 4rem);
+            max-width: min(var(--body-width), 100% - 4rem);
             margin: 1em auto 5em auto;
             background-color: white;
             color: #222;
@@ -73,12 +76,32 @@
             font-weight: 600;
         }
 
-        #vid-art a::before {
-            content: '»';
+        #links a::before {
+            content: '» ';
         }
 
         li>ul {
             margin-top: 0.5em;
+        }
+
+        nav {
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7em;
+            margin-left: calc(-1 * var(--nav-width) - 1em);
+            width: var(--nav-width);
+            margin-top: 6em;
+        }
+
+        nav a {
+            line-height: normal;
+        }
+        
+        @media (max-width: 170ch) {
+            nav {
+                display: none;
+            }
         }
 
         header {
@@ -104,20 +127,32 @@
             gap: 1em;
             font-weight: 600;
         }
+
+        pre {
+            border: 1px solid #accc;
+            border-radius: 5px;
+            padding: 0.5em 1em;
+            background: #fafafa;
+        }
     </style>
 </head>
 
 <body>
 
+    <nav id="navigation">
+        <b>Navigation</b>
+        <!-- auto-populated -->
+    </nav>
+
     <header>
         <div>
             <h1>Ramblings on Software</h1>
-            <aside>A collection of opinions on software engineering and architecture</aside>
+            <aside>A collection of opinions on software engineering and architecture.</aside>
             <aside>by CR</aside>
         </div>
     </header>
 
-    <article id="vid-art">
+    <article id="links">
         <h2>Links</h2>
         <div>
             An incredibly outdated collection of links to stuff that I found interesting:
@@ -146,18 +181,35 @@
             </a>
             <aside>Why estimation is hard and the consequences for management.</aside>
         </div>
+        <div>
+            <a href="https://codeopinion.com/" target="_blank">
+                CodeOpinion
+            </a>
+            <aside>A blog with lots of bite-sized advice on practical architecture topics.</aside>
+        </div>
     </article>
 
-    <article>
+    <article id="guidelines">
         <h2>Guidelines</h2>
-        <div>Many of the following guidelines are specific to .NET,
-            simply because that is the ecosystem I have the most experience with.</div>
+        <div>
+            Many of the following guidelines are specific to .NET simply because that is the ecosystem I have the most experience with.
+        </div>
+        <div>
+            Specifically, they come from a background of building systems with high requirements for availability and performance,
+            the expectation that the system will be continuously extended and changed over the course of decades,
+            and the fact that when something inevitably <i>does</i> go wrong on a Saturday night,
+            I want to be able to understand and fix the problem as efficiently as possible.
+        </div>
+        <div>
+            This list is not intended to be authoritative, but as a list of topics to think about.
+        </div>
         <div class="warning">
             <img src="icons/triangle-alert.svg" width="30px">
             <div>
                 <div>These are guidelines, not rules.</div>
-                <div>Use them as a reasonable default option.</div>
-                <div>Break them when oppropriate, but understand the risks and implications.</div>
+                <div>Use them as reasonable default options.</div>
+                <div>Understand the risks and implications.</div>
+                <div>Break them when oppropriate.</div>
             </div>
         </div>
 
@@ -232,10 +284,13 @@
 
         <h3>Naming</h3>
         <ul>
-            <li>The term "ViewModel" should be used for mutable types used for data-binding.</li>
+            <li>The term "ViewModel" should be used for mutable types intended for data-binding to a UI.</li>
             <li>The term "DTO" should be used for types that represent a data contract and are used for serialization.</li>
             <li>The term "Model" by itself is too generic and should be avoided.</li>
             <li>Types that represent domain objects should use the name established in the domain without further suffix.</li>
+            <li>Calling a well encapsulated component a "Service" is not inherently bad,
+                but consider if more descriptive names can be used that describes what the component DOES instead of what it IS.
+            </li>
         </ul>
 
         <h3>Process Startup</h3>
@@ -253,7 +308,7 @@
                     <li>Types from a library that are used in many places should be conceptually simple enough that you are able to replace them with your own implementation, if it ever becomes necessary.</li>
                 </ul>
             </li>
-            <li>Don't reinvent the wheel. But also don't use a complicated wheel when a simple wheel that you have full control over will suffice.</li>
+            <li>Don't reinvent the wheel. But also don't use a complicated wheel when a simple custom-built wheel that you have full control over will suffice.</li>
             <li>Prefer the OneOf package over LanguageExt (LanguageExt feels overblown).</li>
             <li>Avoid AutoMapper (and similar) and Mediator.</li>
         </ul>
@@ -265,6 +320,171 @@
         </ul>
 
     </article>
+
+    <article id="api-handling-multiple-options">
+        <h2>API-Design: Handling multiple options</h2>
+
+<p>If your API needs to represent a domain that models multiple "options" of something, you might be tempted to merge them into one:</p>
+
+<pre>
+public enum Options { A, B }
+
+public interface IDomainObject {
+  long ID { get; }
+  Options Type { get; }
+  int ValueForA { get; }
+  string ValueForB { get; }
+}
+
+public IDomainObject? GetObject(long id);
+</pre>
+
+<p>But there are (at least) two better options.</p>
+
+<p>You can use a Monad like OneOf. This is a good choice if you need to represent a fixed and small number of options.</p>
+
+<pre>
+public interface IOptionA {
+  long ID { get; }
+  int ValueForA { get; }
+}
+
+public interface IOptionB {
+  long ID { get; }
+  string ValueForB { get; }
+}
+
+public OneOf<NotFound, IOptionA, IOptionB> GetObject(long id);
+</pre>
+
+<p>
+    Or you can use a polymorphic type.
+    This is a good choice if you need to represent many options or when there is a significant chance that options will be added or removed in future.
+</p>
+
+<pre>
+public interface IDomainObject {
+  long ID { get; }	
+}
+
+public interface IOptionA : IDomainObject {
+  int ValueForA { get; }
+}
+
+public interface IOptionB : IDomainObject {
+  string ValueForB { get; }
+}
+
+public IDomainObject? GetObject(long id);
+</pre>
+
+<p>
+    The problem with this is that the caller needs to use type checks and casts to get a hold of the options.
+    If you ever add an option, it can become difficult and tedious to find all spots where the type checks are done and to ensure that they are exhaustive.
+</p>
+
+<pre>
+var obj = GetObject(42);
+if(obj is IOptionA a) // handle case A
+else if(obj is IOptionB b) // handle case B
+else // handle not found
+</pre>
+
+<p>One way to make this more ideomatic would be to use the <b>visitor</b> pattern:</p>
+
+<pre>
+public interface IDomainObject {
+  long ID { get; }
+	void Accept(IVisitor visitor);
+}
+
+public interface IOptionA : IDomainObject {
+  int ValueForA { get; }
+}
+
+public interface IOptionB : IDomainObject {
+  string ValueForB { get; }
+}
+
+public interface IVisitor {
+	void Visit(IOptionA a);
+	void Visit(IOptionB b);
+}
+</pre>
+
+<p>
+    Now, if a caller wants to be sure that they handle all cases, they can implement a visitor.
+    If a new option is added, the code breaks at compile-time.
+</p>
+
+<p>
+    Callers often need some kind of additional context when processing the options, or they want to transform them - e.g. into a DTO. This becomes ugly quickly:
+</p>
+
+<pre>
+public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
+	var visitor = new Visitor(someContext);
+	foreach(var obj in objects) {
+		obj.Accept(visitor);
+	}
+	return visitor.Output;
+}
+
+private class Visitor(string someContext) : IVisitor {
+	public List<Dto> Output { get; } = [];
+	void Visit(IOptionA a) {
+		Output.Add(Transform(a, someContext));
+	}
+}
+</pre>
+
+<p>
+    Instead, build the visitor interface to support inputs and outputs. If a caller does not need the added freedom, they can just use a Nothing type.
+</p>
+
+<pre>
+public interface IDomainObject {
+  long ID { get; }
+	TOut Accept<TIn, TOut>(IVisitor<TIn, TOut> visitor);
+}
+
+public interface IVisitor<TIn, TOut> {
+	TOut Visit(IOptionA a, TIn input);
+	TOut Visit(IOptionB b, TIn input);
+}
+</pre>
+
+<p>Then a caller can write the transformation in a much more ideomatic way:</p>
+
+<pre>
+public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
+	var visitor = new Visitor(); // can even be reused or resolved used DI
+	return objects
+		.Select(obj => obj.Accept(visitor, someContext))
+		.ToList();
+}
+
+private class Visitor<string, Dto> : IVisitor {
+	TOut Visit(IOptionA a, string someContext) {
+		return Transform(a, someContext);
+	}
+}
+</pre>
+
+    </article>
+
+
+    <script>
+        let nav = document.getElementById("navigation");
+        for (const article of document.getElementsByTagName("article")) {
+            for (const h2 of article.getElementsByTagName("h2")) {
+                let a = document.createElement("a");
+                a.setAttribute("href", "#" + article.id);
+                a.textContent = h2.textContent;
+                nav.appendChild(a);
+            }
+        }
+    </script>
 
 </body>
 
