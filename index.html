@@ -319,6 +319,21 @@
             <li>Use the new SLNX solution format by default.</li>
         </ul>
 
+        <h3>Unit Tests</h3>
+        <ul>
+            <li>
+                Design your abstractions and your tests so that they check behavior that is relevant for the caller,
+                not implementation details.
+            </li>
+            <li>
+                When you change an implementation detail, you should have to fix one place in your tests at worst, or nothing at all at best.
+                If you have to change more than three places, refactor the tests so that you only have to change one.
+            </li>
+            <li>A good test breaks when there is an actual bug or change in behavior that affects the caller.</li>
+            <li>A good test stays green when only implementation details have changed.</li>
+            <li>Prefer Fakes over Mocks.</li>
+        </ul>
+
     </article>
 
     <article id="api-handling-multiple-options">
