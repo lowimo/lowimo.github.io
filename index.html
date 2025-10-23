@@ -218,6 +218,7 @@
             <li>Avoid Guids as keys or index columns for tables that will have more than 100 rows. If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
             <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
             <li>Design your schemas so that inserts and deletes happen mostly at the very start or end of the clustered index - like a queue.</li>
+            <li>When loading Timestamps/DateTimes from the DB, ensure that the DateTime.Kind is set correctly when returning the value to the domain layer - usually UTC.</li>
         </ul>
 
         <h3>EF Core</h3>
@@ -227,7 +228,7 @@
             <li>Always think about concurrency and data integrity
                 <ul>
                     <li>Use atomic methods like ExecuteUpdate or ExecuteDelete if possible</li>
-                    <li>Handle concurrency conflicts -> <a href="https://learn.microsoft.com/en-us/ef/core/saving/concurrency">https://learn.microsoft.com/en-us/ef/core/saving/concurrency</a></li>
+                    <li>Handle concurrency conflicts &rarr; <a href="https://learn.microsoft.com/en-us/ef/core/saving/concurrency">EF Core Docs</a></li>
                     <li>Design your schema to reduce the need to even think about concurrency!</li>
                 </ul>
             </li>
@@ -252,7 +253,10 @@
             <li>Use OneOf (or similar) to represent all states that are important for the domain or that you want the caller to handle. But: What is important for the domain is different for each layer of abstraction, because the domain is different!
             </li>
             <li>Use Exceptions for cases that the caller cannot reasonably handle (e.g. DB not available, internal invariants violated)</li>
-            <li>All public methods should be thread-safe. This sounds restrictive but is usually no significant overhead at all, and it makes writing concurrent processes much easier.</li>
+            <li>
+                All methods on feature boundaries should be thread-safe.
+                This sounds restrictive but is usually no significant overhead at all, and it makes writing concurrent processes much easier.
+            </li>
             <li>Prefer singleton DI lifetimes over transient or context lifetimes. Short lifetimes have several downsides:
                 <ul>
                     <li>They suggest that the implementation does not need to care about thread-safety (e.g. when handling a DB context) but as soon as you want to introduce concurrency (e.g. because you want to call multiple async methods but await
@@ -269,11 +273,12 @@
 
         <h3>Dates and Times</h3>
         <ul>
-            <li>Consider using NodaTime instead and use more explicit types.</li>
             <li>Use DateTime when you want to specify a point in time.</li>
             <li>DateTime fields should be either UTC or local, not mixed.</li>
+            <li>Establish clear conventions for your system. For example: Any DateTime named "Timestamp" is in UTC.</li>
             <li>DateTime fields should specify in their name if they are UTC or local.</li>
             <li>Do NOT use DateTime to refer to days or times (use DateOnly and TimeOnly instead).</li>
+            <li>Consider using NodaTime instead and use more explicit types.</li>
         </ul>
 
         <h3>Logging</h3>
