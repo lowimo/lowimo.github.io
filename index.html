@@ -269,6 +269,7 @@
                 But: What is important for the domain is different for each layer of abstraction, because the domain is different!
             </li>
             <li>Use Exceptions for cases that the caller cannot reasonably handle (e.g. DB not available, internal invariants violated)</li>
+            <li>Do NOT use strings or other catch-all types to represent errors. Either the caller is interested in the errors &rarr; use OneOf. Or the caller is not interested &rarr; use exceptions.</li>
             <li>
                 All methods on feature boundaries should be thread-safe.
                 This sounds restrictive but is usually no significant overhead at all, and it makes writing concurrent processes much easier.
@@ -310,6 +311,7 @@
             <li>The term "DTO" should be used for types that represent a data contract and are used for serialization.</li>
             <li>The term "Model" by itself is too generic and should be avoided.</li>
             <li>Types that represent domain objects should use the name established in the domain without further suffix.</li>
+            <li>If a well-defined name for a domain concept exists in the domain's native language, prefer the native name instead of &quot;inventing&quot; an English name.</li>
             <li>Calling a well encapsulated component a "Service" is not inherently bad,
                 but consider if more descriptive names can be used that describes what the component DOES instead of what it IS.
             </li>
