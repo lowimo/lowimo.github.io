@@ -158,6 +158,12 @@
             An incredibly outdated collection of links to stuff that I found interesting:
         </div>
         <div>
+            <a href="https://codeopinion.com/" target="_blank">
+                CodeOpinion
+            </a>
+            <aside>A blog with lots of bite-sized advice on practical architecture topics.</aside>
+        </div>
+        <div>
             <a href="https://www.youtube.com/watch?v=88_LUw1Wwe4" target="_blank">
                 Top 5 techniques for building the worst microservice system ever - William Brander - NDC London 2023
             </a>
@@ -181,24 +187,19 @@
             </a>
             <aside>Why estimation is hard and the consequences for management.</aside>
         </div>
-        <div>
-            <a href="https://codeopinion.com/" target="_blank">
-                CodeOpinion
-            </a>
-            <aside>A blog with lots of bite-sized advice on practical architecture topics.</aside>
-        </div>
     </article>
 
     <article id="guidelines">
         <h2>Guidelines</h2>
         <div>
-            Many of the following guidelines are specific to .NET simply because that is the ecosystem I have the most experience with.
+            Many of the following guidelines are specific to .NET simply because that is the ecosystem I have
+            the most experience with, but their can easily be applied to other environments.
         </div>
         <div>
-            Specifically, they come from a background of building systems with high requirements for availability and performance,
-            the expectation that the system will be continuously extended and changed over the course of decades,
-            and the fact that when something inevitably <i>does</i> go wrong on a Saturday night,
-            I want to be able to understand and fix the problem as efficiently as possible.
+            Specifically, they come from a background of building systems with high requirements for correctness,
+            availability and performance, along with the expectation that the system will be continuously extended
+            and changed over the course of decades, and the fact that when something inevitably <i>does</i> go wrong
+            on a Saturday night, I want to be able to understand and fix the problem as efficiently as possible.
         </div>
         <div>
             This list is not intended to be authoritative, but as a list of topics to think about.
@@ -206,40 +207,33 @@
         <div class="warning">
             <img src="icons/triangle-alert.svg" width="30px">
             <div>
-                <div>These are guidelines, not rules.</div>
-                <div>Use them as reasonable default options.</div>
-                <div>Understand the risks and implications.</div>
-                <div>Break them when oppropriate.</div>
+                <div>These are guidelines, not rules.
+                Use them as reasonable default options.
+                Understand the risks and implications.
+                Break them when oppropriate.</div>
             </div>
         </div>
 
-        <h3>Databases</h3>
+        <h3>Domain Driven Design</h3>
         <ul>
-            <li>Avoid Guids as keys or index columns for tables that will have more than 100 rows. If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
-            <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
-            <li>Design your schemas so that inserts and deletes happen mostly at the very start or end of the clustered index - like a queue.</li>
-            <li>When loading Timestamps/DateTimes from the DB, ensure that the DateTime.Kind is set correctly when returning the value to the domain layer - usually UTC.</li>
-        </ul>
-
-        <h3>EF Core</h3>
-        <ul>
-            <li>Think about your database schema and the most common access patterns first before writing your EF entities in code.
-                When in doubt, prefer a nice and fast DB schema over nice code!</li>
-            <li>Always think about concurrency and data integrity
+            <li>
+                Your architecture and API design should exist to support the domain, NOT to support
+                arbitrary patterns!
+            </li>
+            <li>Focus on the <b>strategic</b> aspects of DDD
                 <ul>
-                    <li>Use atomic methods like ExecuteUpdate or ExecuteDelete if possible</li>
-                    <li>Handle concurrency conflicts &rarr; <a href="https://learn.microsoft.com/en-us/ef/core/saving/concurrency">EF Core Docs</a></li>
-                    <li>Design your schema to reduce the need to even think about concurrency!</li>
+                    <li>Establish a ubiquitous language or glossary to define, map and translate
+                        terms between the domain language and the technical.</li>
+                    <li>Establish bounded contexts! Keep related stuff together but purposefully
+                        isolate it from other contexts.</li>
                 </ul>
             </li>
-            <li>Always know and understand the generated SQL.</li>
-            <li>Do not try to solve concurrency problems in code when battle-hardened atomic primitives exist in SQL.</li>
-            <li>Consider using Dapper instead, especially for use-cases with high load, concurrency, or other performance requirements.</li>
-            <li>Set AsNoTracking as default.</li>
-            <li>Use a separate DB context per feature.</li>
-            <li>Use a DB context factory instead of directly injected DB context.</li>
-            <li>Keep the lifetime of a DB context as short as possible (but as long as necessary) and handle its lifetime explicitly instead of through DI lifetimes.</li>
-
+            <li>
+                <b>Know the tactical patterns</b> of DDD like entities, aggregates, value objects,
+                repositories, etc. but <b>do not let them guide</b> your system's architecture.
+                Tactical patterns are tools. Only use them when appropriate and always know their
+                downsides.
+            </li>
         </ul>
 
         <h3>API Design</h3>
@@ -356,6 +350,35 @@
             <li>A good test breaks when there is an actual bug or change in behavior that affects the caller.</li>
             <li>A good test stays green when only implementation details have changed.</li>
             <li>Prefer Fakes over Mocks.</li>
+        </ul>
+
+        <h3>Databases</h3>
+        <ul>
+            <li>Avoid Guids as keys or index columns for tables that will have more than 100 rows. If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
+            <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
+            <li>Design your schemas so that inserts and deletes happen mostly at the very start or end of the clustered index - like a queue.</li>
+            <li>When loading Timestamps/DateTimes from the DB, ensure that the DateTime.Kind is set correctly when returning the value to the domain layer - usually UTC.</li>
+        </ul>
+
+        <h3>EF Core</h3>
+        <ul>
+            <li>Think about your database schema and the most common access patterns first before writing your EF entities in code.
+                When in doubt, prefer a nice and fast DB schema over nice code!</li>
+            <li>Always think about concurrency and data integrity
+                <ul>
+                    <li>Use atomic methods like ExecuteUpdate or ExecuteDelete if possible</li>
+                    <li>Handle concurrency conflicts &rarr; <a href="https://learn.microsoft.com/en-us/ef/core/saving/concurrency">EF Core Docs</a></li>
+                    <li>Design your schema to reduce the need to even think about concurrency!</li>
+                </ul>
+            </li>
+            <li>Always know and understand the generated SQL.</li>
+            <li>Do not try to solve concurrency problems in code when battle-hardened atomic primitives exist in SQL.</li>
+            <li>Consider using Dapper instead, especially for use-cases with high load, concurrency, or other performance requirements.</li>
+            <li>Set AsNoTracking as default.</li>
+            <li>Use a separate DB context per feature.</li>
+            <li>Use a DB context factory instead of directly injected DB context.</li>
+            <li>Keep the lifetime of a DB context as short as possible (but as long as necessary) and handle its lifetime explicitly instead of through DI lifetimes.</li>
+
         </ul>
 
     </article>
