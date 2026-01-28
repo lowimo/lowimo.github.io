@@ -193,16 +193,11 @@
         <h2>Guidelines</h2>
         <div>
             Many of the following guidelines are specific to .NET simply because that is the ecosystem I have
-            the most experience with, but their can easily be applied to other environments.
+            the most experience with, but they can easily be applied to other environments.
         </div>
         <div>
-            Specifically, they come from a background of building systems with high requirements for correctness,
-            availability and performance, along with the expectation that the system will be continuously extended
-            and changed over the course of decades, and the fact that when something inevitably <i>does</i> go wrong
-            on a Saturday night, I want to be able to understand and fix the problem as efficiently as possible.
-        </div>
-        <div>
-            This list is not intended to be authoritative, but as a list of topics to think about.
+            These guidelines are what works for <i>me</i> and the type of long-running projects I tend to work on.
+            This list is not intended to be authoritative, but a list of topics to think about.
         </div>
         <div class="warning">
             <img src="icons/triangle-alert.svg" width="30px">
@@ -236,7 +231,7 @@
             </li>
         </ul>
 
-        <h3>API Design</h3>
+        <h3>Interface Design</h3>
         <ul>
             <li>Give every feature a well-designed API</li>
             <li>Do NOT assume the lifecycle of the caller (they might be a short-lived API controller instance or a long-lived background service, both has to work)</li>
@@ -250,6 +245,7 @@
                     <li>If a method accepts a collection of items but implicitly expects the items to be unique, demand a set instead.</li>
                 </ul>
             </li>
+            <li>Make invalid states <i>unrepresentable</i> in the type system. See examples below.</li>
             <li>
                 Do NOT use types that give away the APIs ability to change implementation details later. For example:
                 <ul>
@@ -257,6 +253,12 @@
                         What if you want to add caching later?</li>
                     <li>If a method returns a type that is shared between features, do you really want to promise that you will always provide
                         all values and functionality of that type? Will a leaner type suffice?</li>
+                </ul>
+            </li>
+            <li>
+                Use read-only or immutable types for collections and make sure to avoid hidden assumptions:
+                <ul>
+                    <li>IEnumerable: Can yield an infinite number of items, should only be enumerated once.</li>
                 </ul>
             </li>
             <li>Use OneOf (or similar) to represent all states that are important for the domain or that you want the caller to handle.
