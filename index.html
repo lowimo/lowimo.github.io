@@ -385,6 +385,35 @@
 
     </article>
 
+    <article id="code-style">
+        <h2>Code Style</h2>
+        <p>Just my opinion on how to keep things easily readable:</p>
+
+        <p>Make statements that span over multiple lines "symmetric", for example: One line to "start" a method, one line per argument,
+            one line to end the method.</p>
+        <pre>
+var foo = someList.ToDictionary(
+    item => item.Property.Id,
+    item => new SomeValue(item.SomeProperty, CalculateSomething(item))
+);
+        </pre>
+
+        <p>Do not embed ternarny conditions into lines with other code:</p>
+        <pre>
+Bad:
+var foo = SomeMethod(argument1, someBool
+    ? "yes"
+    : "no")
+
+Better:
+var foo = SomeMethod(
+    argument1,
+    someBool ? "yes" : "no"
+);
+        </pre>
+
+    </article>
+
     <article id="api-handling-multiple-options">
         <h2>API-Design: Handling multiple options</h2>
 
