@@ -380,6 +380,10 @@
             <li>Use a separate DB context per feature.</li>
             <li>Use a DB context factory instead of directly injected DB context.</li>
             <li>Keep the lifetime of a DB context as short as possible (but as long as necessary) and handle its lifetime explicitly instead of through DI lifetimes.</li>
+            <li>
+                Do NOT attach the lifetime of a DB context to an implicit scope, like an incoming HTTP request.
+                Implicitly created DB contexts will make the entire scope a single unit-of-work, which may be fine for very simple CRUD APIs, but makes other use-cases much more complicated!
+            </li>
 
         </ul>
 
