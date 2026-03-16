@@ -287,18 +287,18 @@
 
         <h3>Dates and Times</h3>
         <ul>
-            <li>Use DateTime when you want to specify a point in time.</li>
+            <li>Use NodaTime for dates and times whenever possible.</li>
             <li>DateTime fields should be either UTC or local, not mixed.</li>
             <li>Establish clear conventions for your system. For example: Any DateTime named "Timestamp" is in UTC.</li>
             <li>DateTime fields should specify in their name if they are UTC or local.</li>
             <li>Do NOT use DateTime to refer to days or times (use DateOnly and TimeOnly instead).</li>
-            <li>Consider using NodaTime instead and use more explicit types.</li>
         </ul>
 
         <h3>Logging</h3>
         <ul>
             <li>Log information that is actually interesting and valuable for debugging.</li>
             <li>Write logs in complete English sentences.</li>
+            <li>Always prefer structured logging over string concatenation,</li>
         </ul>
 
         <h3>Naming</h3>
@@ -320,6 +320,9 @@
 
         <h3>Libraries</h3>
         <ul>
+            <li>Prefer the OneOf package over LanguageExt (LanguageExt is unnecessarily complex).</li>
+            <li>Avoid AutoMapper (and similar).</li>
+            <li>Avoid Mediator (and similar).</li>
             <li>Every imported nuget package is both a chance to save time and an additional risk:
                 <ul>
                     <li>Unnecessary complexity increases cognitive load.</li>
@@ -329,8 +332,6 @@
                 </ul>
             </li>
             <li>Don't reinvent the wheel. But also don't use a complicated wheel when a simple custom-built wheel that you have full control over will suffice.</li>
-            <li>Prefer the OneOf package over LanguageExt (LanguageExt feels overblown).</li>
-            <li>Avoid AutoMapper (and similar) and Mediator.</li>
         </ul>
 
         <h3>Build & Environment</h3>
@@ -360,6 +361,7 @@
             <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
             <li>Design your schemas so that inserts and deletes happen mostly at the very start or end of the clustered index - like a queue.</li>
             <li>When loading Timestamps/DateTimes from the DB, ensure that the DateTime.Kind is set correctly when returning the value to the domain layer - usually UTC.</li>
+            <li>Or better yet: Map it to a NodaTime type as soon as possible.</li>
         </ul>
 
         <h3>EF Core</h3>
