@@ -278,6 +278,14 @@
                     <li>They produce garbage.</li>
                 </ul>
             </li>
+            <li>
+                For read operations, provide batched methods by default that allow callers to fetch multiple items at once without paying for multiple roundtrips.
+                <ul>
+                    <li>For example: Accept an IReadOnlyCollection&lt;Key&gt; (count is known, order is irrelevant)
+                        and return an IReadOnlyDictionary&lt;Key, Value&gt; (because that is likely what the caller needs)
+                    </li>
+                </ul>
+            </li>
         </ul>
 
         <h3>Error Handling</h3>
