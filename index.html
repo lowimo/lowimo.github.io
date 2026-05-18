@@ -181,12 +181,6 @@
             </a>
             <aside>A nice story about how teams should work together.</aside>
         </div>
-        <div>
-            <a href="https://www.youtube.com/watch?v=QVBlnCTu9Ms" target="_blank">
-                #NoEstimates (Allen Holub)
-            </a>
-            <aside>Why estimation is hard and the consequences for management.</aside>
-        </div>
     </article>
 
     <article id="guidelines">
@@ -470,7 +464,7 @@ public interface IOptionB {
   string ValueForB { get; }
 }
 
-public OneOf<NotFound, IOptionA, IOptionB> GetObject(long id);
+public OneOf&lt;NotFound, IOptionA, IOptionB&gt; GetObject(long id);
 </pre>
 
         <p>
@@ -511,7 +505,7 @@ else // handle not found
         <pre>
 public interface IDomainObject {
   long ID { get; }
-	void Accept(IVisitor visitor);
+  void Accept(IVisitor visitor);
 }
 
 public interface IOptionA : IDomainObject {
@@ -539,18 +533,18 @@ public interface IVisitor {
 
         <pre>
 public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
-	var visitor = new Visitor(someContext);
-	foreach(var obj in objects) {
-		obj.Accept(visitor);
-	}
-	return visitor.Output;
+  var visitor = new Visitor(someContext);
+  foreach(var obj in objects) {
+    obj.Accept(visitor);
+  }
+  return visitor.Output;
 }
 
 private class Visitor(string someContext) : IVisitor {
-	public List<Dto> Output { get; } = [];
-	void Visit(IOptionA a) {
-		Output.Add(Transform(a, someContext));
-	}
+  public List<Dto> Output { get; } = [];
+  void Visit(IOptionA a) {
+    Output.Add(Transform(a, someContext));
+  }
 }
 </pre>
 
@@ -561,12 +555,12 @@ private class Visitor(string someContext) : IVisitor {
         <pre>
 public interface IDomainObject {
   long ID { get; }
-	TOut Accept<TIn, TOut>(IVisitor<TIn, TOut> visitor);
+  TOut Accept<TIn, TOut>(IVisitor<TIn, TOut> visitor);
 }
 
 public interface IVisitor<TIn, TOut> {
-	TOut Visit(IOptionA a, TIn input);
-	TOut Visit(IOptionB b, TIn input);
+  TOut Visit(IOptionA a, TIn input);
+  TOut Visit(IOptionB b, TIn input);
 }
 </pre>
 
@@ -574,16 +568,16 @@ public interface IVisitor<TIn, TOut> {
 
         <pre>
 public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
-	var visitor = new Visitor(); // can even be reused or resolved used DI
-	return objects
-		.Select(obj => obj.Accept(visitor, someContext))
-		.ToList();
+  var visitor = new Visitor(); // can even be reused or resolved used DI
+  return objects
+    .Select(obj => obj.Accept(visitor, someContext))
+    .ToList();
 }
 
 private class Visitor<string, Dto> : IVisitor {
-	TOut Visit(IOptionA a, string someContext) {
-		return Transform(a, someContext);
-	}
+  TOut Visit(IOptionA a, string someContext) {
+    return Transform(a, someContext);
+  }
 }
 </pre>
 
