@@ -365,8 +365,17 @@
 
         <h3>Databases</h3>
         <ul>
+
             <li>Avoid Guids as keys or index columns for tables that will have more than 100 rows. If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
             <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
+            <li>Choose compact data types for columns:
+                <ul>
+                    <li>Map enums as integers, not strings.</li>
+                    <li>Always limit the length of string columns for well-known values like IDs.</li>
+                    <li>Use non-Unicode strings for well-known values like IDs, ISINs, etc.</li>
+                    <li>Set a (large) limit even for columns that contain free-text, file data or similar to prevent accidentally saving huge amounts of data in case of bugs or malicious users.</li>
+                </ul>
+            </li>
             <li>Design your schemas so that inserts and deletes happen mostly at the very start or end of the clustered index - like a queue.</li>
             <li>When loading Timestamps/DateTimes from the DB, ensure that the DateTime.Kind is set correctly when returning the value to the domain layer - usually UTC.</li>
             <li>Or better yet: Map it to a NodaTime type as soon as possible.</li>
