@@ -253,9 +253,13 @@
                 Use read-only or immutable types for collections and make sure to avoid hidden assumptions:
                 <ul>
                     <li>IEnumerable: Can yield an infinite number of items, should only be enumerated once.</li>
+                    <li>IReadOnlyCollection: Known number of items, may contain duplicates, order irrelevant.</li>
+                    <li>IReadOnlyList: Known number of items, may contain duplicates, known order.</li>
+                    <li>IReadOnlySet: Known number of items, no duplicates, no order.</li>
+                    <li>Etc.</li>
                 </ul>
             </li>
-            <li>Use OneOf (or similar) to represent all states that are important for the domain or that you want the caller to handle.
+            <li>Use discriminated unions (OneOf or built-on support in .NET 11) to represent all states that are important for the domain or that you want the caller to handle.
                 But: What is important for the domain is different for each layer of abstraction, because the domain is different!
             </li>
             <li>Use Exceptions for cases that the caller cannot reasonably handle (e.g. DB not available, internal invariants violated)</li>
