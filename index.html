@@ -197,9 +197,9 @@
             <img src="icons/triangle-alert.svg" width="30px">
             <div>
                 <div>These are guidelines, not rules.
-                Use them as reasonable default options.
-                Understand the risks and implications.
-                Break them when oppropriate.</div>
+                    Use them as reasonable default options.
+                    Understand the risks and implications.
+                    Break them when oppropriate.</div>
             </div>
         </div>
 
@@ -224,6 +224,20 @@
                 downsides.
             </li>
         </ul>
+
+        <h3>Slices and Layers</h3>
+        <ul>
+            <li>Structuring your micro-architecture as <i>slices</i> and <i>layers</i> is a simple, pragmatic and scalable approach. You can always switch to a more tailored structure later.
+                <ul>
+                    <li><i>Slices</i> are vertical. They represent a bounded logical feature and sit next to each other within their parent component.</li>
+                    <li><i>Layers</i> are horizontal. They represent a bounded technical responsibility or abstraction. They sit stacked on top of each other within their parent component.</li>
+                </ul>
+            </li>
+            <li>Every component should structure its sub-components as <i>either</i> a set of slices, or a set of layers.</li>
+            <li>These structures can be nested. A sliced component can contain a sub-component that uses layers. One of the layers can have sub-components that use slices again.</li>
+        </ul>
+
+        <img src="slices-layers.png">
 
         <h3>Interface Design</h3>
         <ul>
@@ -363,9 +377,17 @@
 
         <h3>Databases</h3>
         <ul>
-
-            <li>Avoid Guids as keys or index columns for tables that will have more than 100 rows. If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
+            <li>Avoid Guids as keys or index columns for tables that will have more than 1000 rows.
+                If you have to, use Guids created in the v7 format to avoid unnecessary index fragmentation and latency spikes when the DB has to organize pages.</li>
             <li>Avoid Guids (uniqueidentifier) even more when you are using MS SQL Server, because SQL Server does NOT order Guids the way any reasonably sane person would think they should be ordered.</li>
+            <li>Prefer a simple auto-generated integer.
+                <ul>
+                    <li>Evaluate carefully if it is safe to expose this internal ID to clients.</li>
+                    <li>Hand out a different public ID instead.</li>
+                    <li>If the public ID must remain stable over time, generate and save it in a dedicated column with an appropriate index.</li>
+                    <li>Otherwise, by default, prefer a simple in-memory encryption to convert between internal and public ID.</li>
+                </ul>
+            </li>
             <li>Choose compact data types for columns:
                 <ul>
                     <li>Map enums as integers, not strings.</li>
@@ -397,10 +419,12 @@
             <li>Use a separate DB context per feature.</li>
             <li>Use a DB context factory instead of directly injected DB context.</li>
             <li>Keep the lifetime of a DB context as short as possible (but as long as necessary) and handle its lifetime explicitly instead of through DI lifetimes.</li>
+            <li>Avoid lazy-loading at all costs.</li>
             <li>
                 Do NOT attach the lifetime of a DB context to an implicit scope, like an incoming HTTP request.
                 Implicitly created DB contexts will make the entire scope a single unit-of-work, which may be fine for very simple CRUD APIs, but makes other use-cases much more complicated!
             </li>
+            <li>Avoid dependency loops via navigation properties. If entity A has a reference to an entity B, that is fine. But that does NOT mean that entity B should automatically have a navigation property holding a list of A.</li>
 
         </ul>
 
