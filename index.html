@@ -569,7 +569,7 @@ public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
 }
 
 private class Visitor(string someContext) : IVisitor {
-  public List<Dto> Output { get; } = [];
+  public List&lt;Dto&gt; Output { get; } = [];
   void Visit(IOptionA a) {
     Output.Add(Transform(a, someContext));
   }
@@ -583,10 +583,10 @@ private class Visitor(string someContext) : IVisitor {
         <pre>
 public interface IDomainObject {
   long ID { get; }
-  TOut Accept<TIn, TOut>(IVisitor<TIn, TOut> visitor);
+  TOut Accept&lt;TIn, TOut>(IVisitor&lt;TIn, TOut> visitor);
 }
 
-public interface IVisitor<TIn, TOut> {
+public interface IVisitor&lt;TIn, TOut> {
   TOut Visit(IOptionA a, TIn input);
   TOut Visit(IOptionB b, TIn input);
 }
@@ -595,14 +595,14 @@ public interface IVisitor<TIn, TOut> {
         <p>Then a caller can write the transformation in a much more ideomatic way:</p>
 
         <pre>
-public List<Dto> Transform(List<IDomainObject> objects, string someContext) {
+public List&lt;Dto> Transform(List<IDomainObject> objects, string someContext) {
   var visitor = new Visitor(); // can even be reused or resolved used DI
   return objects
     .Select(obj => obj.Accept(visitor, someContext))
     .ToList();
 }
 
-private class Visitor<string, Dto> : IVisitor {
+private class Visitor&lt;string, Dto> : IVisitor {
   TOut Visit(IOptionA a, string someContext) {
     return Transform(a, someContext);
   }
