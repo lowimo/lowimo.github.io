@@ -298,6 +298,28 @@
                     </li>
                 </ul>
             </li>
+            <li>
+                If multiple methods in a type receive a similar set of parameters, those parameters shall be in the same order.
+            </li>
+        </ul>
+
+        <h3>HTTP APIs</h3>
+        <ul>
+            <li>Making HTTP APIs actually fully restful is mostly overkill. <i>But,</i> following some of the principles can be useful.</li>
+            <li>
+                Prefer routes/URLs that reference logical resources.
+                <ul>
+                    <li>Good: /api/feature/category/{id}</li>
+                    <li>Bad: /api/feature?category={category}&id={id}</li>
+                </ul>
+            </li>
+            <li>
+                Avoid treating HTTP routes like methods/RPCs (remote procedure calls)
+                <ul>
+                    <li>Good: DELETE /api/users/42/current-password</li>
+                    <li>Bad: POST /api/reset-user-password</li>
+                </ul>
+            </li>
         </ul>
 
         <h3>Error Handling</h3>
