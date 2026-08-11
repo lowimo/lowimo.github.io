@@ -320,6 +320,16 @@
                     <li>Bad: POST /api/reset-user-password</li>
                 </ul>
             </li>
+            <li>
+                When returning JSON for a list-like endpoint (e.g. GET /orders), always
+                return an object as the root
+                <code>{ "orders": [ { "id": 2 }, ...] }</code>,
+                NOT an array
+                <code>[ { "id": 2 }, ...]</code>.
+                Sooner or later, you will need to add fields
+                (e.g. item counts for pagination)
+                which causes a breaking change for clients if the root is not an object.
+            </li>
         </ul>
 
         <h3>Error Handling</h3>
